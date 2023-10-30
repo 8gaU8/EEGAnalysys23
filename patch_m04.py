@@ -3,7 +3,6 @@
 import mne
 import numpy as np
 import pandas as pd
-from message_senders import LineSender
 
 import eeg_utils
 from config import ICA_EPOCHS_DIR
