@@ -2,11 +2,11 @@ from message_senders import LineSender
 from rich.console import Console
 
 import eeg_utils
-from config import ICA_EPOCHS
+from config import ICA_EPOCHS_DIR
 
 
 def save_and_notify(part_id, params, eegs, patch_func):
-    fname = ICA_EPOCHS / f"{part_id}-epo.fif.gz"
+    fname = ICA_EPOCHS_DIR / f"{part_id}-epo.fif.gz"
     if fname.exists():
         LineSender().send(part_id + " exists")
         return
