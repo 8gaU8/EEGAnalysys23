@@ -6,7 +6,7 @@ import pandas as pd
 from message_senders import LineSender
 
 import eeg_utils
-from config import ICA_EPOCHS
+from config import ICA_EPOCHS_DIR
 
 part_id = "nm04"
 
@@ -67,7 +67,7 @@ def parse_events(events: np.ndarray, df: pd.DataFrame):
 
 
 def main():
-    if (ICA_EPOCHS / f"{part_id}-epo.fif.gz").exists():
+    if (ICA_EPOCHS_DIR / f"{part_id}-epo.fif.gz").exists():
         return
     # Session1を処理
     # %%
@@ -153,7 +153,7 @@ def main():
 
     # %%
     epochs = mne.concatenate_epochs(epochs_list)
-    epochs.save(ICA_EPOCHS / f"{part_id}-epo.fif.gz", overwrite=False)
+    epochs.save(ICA_EPOCHS_DIR / f"{part_id}-epo.fif.gz", overwrite=False)
 
 
 if __name__ == "__main__":
