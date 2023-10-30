@@ -7,7 +7,7 @@ err() {
 }
 
 ### run python scripts
-/opt/homebrew/Caskroom/mambaforge/base/envs/NIDlab/bin/python scr01_load_ICA_epoching.py
-/opt/homebrew/Caskroom/mambaforge/base/envs/NIDlab/bin/python scr02_calc_average_erp.py
+/opt/homebrew/Caskroom/mambaforge/base/envs/NIDlab/bin/python ./script01_load_ICA_epoching.py
+/opt/homebrew/Caskroom/mambaforge/base/envs/NIDlab/bin/python ./script02_calc_average_erp.py
 
 

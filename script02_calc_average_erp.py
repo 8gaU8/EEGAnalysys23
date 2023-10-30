@@ -38,9 +38,9 @@ def calc_avg_epochs(part_ids: "list[str]", musicians: bool):
 
 
 def main():
-    # LineSender().send("musicians starts")
-    # part_ids = ["m01", "m02", "m03", "m04", "m05", "m06"]
-    # calc_avg_epochs(part_ids=part_ids, musicians=True)
+    LineSender().send("musicians starts")
+    part_ids = ["m01", "m02", "m03", "m04", "m05", "m06"]
+    calc_avg_epochs(part_ids=part_ids, musicians=True)
 
     LineSender().send("no musicians starts")
     part_ids = ["nm01", "nm02", "nm03", "nm04"]

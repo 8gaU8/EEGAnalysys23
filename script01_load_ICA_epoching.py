@@ -36,22 +36,14 @@ def main():
 
     params_dict = {
         "m01": default_params,
-        "m02": {
-            "params": params,
-            "eegs": ["1", "2", "3", "4", "5_re"],
-            "patch_func": None,
-        },
+        "m02": {"params": params, "eegs": ["1", "2", "3", "4", "5_re"], "patch_func": None},
         "m03": default_params,
         "m04": default_params,
         "m05": default_params,
         "m06": default_params,
         "nm01": default_params,
         "nm02": default_params,
-        "nm03": {
-            "params": params,
-            "eegs": ["1_rem", "2", "3", "4", "5"],
-            "patch_func": None,
-        },
+        "nm03": {"params": params, "eegs": ["1_rem", "2", "3", "4", "5"], "patch_func": None},
         "nm04": {"params": params, "eegs": eegs, "patch_func": get_m02_patch()},
         "nm06": default_params,
     }
