@@ -1,3 +1,6 @@
+import sys
+
+sys.path.append("..")
 import mne
 from message_senders import LineSender
 from rich.console import Console

@@ -1,3 +1,7 @@
+import sys
+
+sys.path.append("..")
+
 from message_senders import LineSender
 from rich.console import Console
 
@@ -34,6 +38,7 @@ def main():
     eegs = ["1", "2", "3", "4", "5"]
     default_params = {"params": params, "eegs": eegs, "patch_func": None}
 
+    # fmt: off
     params_dict = {
         "m01": default_params,
         "m02": {"params": params, "eegs": ["1", "2", "3", "4", "5_re"], "patch_func": None},
@@ -47,6 +52,8 @@ def main():
         "nm04": {"params": params, "eegs": eegs, "patch_func": get_m02_patch()},
         "nm06": default_params,
     }
+    # fmt： on
+
     for part_id in params_dict.keys():
         try:
             save_and_notify(part_id=part_id, **params_dict[part_id])

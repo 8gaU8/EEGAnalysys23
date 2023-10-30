@@ -1,5 +1,9 @@
 # %%
 # session1とsession2を連続して行ったため、1と2だけ別に処理する
+import sys
+
+sys.path.append("..")
+
 import mne
 import numpy as np
 import pandas as pd
