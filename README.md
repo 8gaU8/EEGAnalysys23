@@ -7,12 +7,14 @@
 ```
 
 ## 構成
-- `./scr01_load_ICA_epoching.py`
+- `./scripts/scr01_load_ICA_epoching.py`
     - フィルタリング(1,50)
     - ICA(20コンポーネント、infomax)でICLabel
     - 各トリガーでエポッキング
-- `./scr02_calc_average_erp.py`
+- `./scripts/scr02_calc_average_erp.py`
     - `probe_tone`で平均計算
+- `./scripts/script03_erp_amp_late.py`
+    - 各被験者の条件ごと`probe_tone`での180ms, 300msのERPの潜時と振幅をDataFrameに
 - `./eeg_utils.py`
     - ユーティリティ関数など
 - `config.py`
