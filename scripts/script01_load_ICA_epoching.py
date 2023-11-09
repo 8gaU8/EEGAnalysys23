@@ -1,16 +1,15 @@
 import sys
 
 sys.path.append("..")
-
 from message_senders import LineSender
 from rich.console import Console
 
 import eeg_utils
-from config import ICA_EPOCHS_DIR
+from config import ica_epoch_path
 
 
 def save_and_notify(part_id, params, eegs, patch_func):
-    fname = ICA_EPOCHS_DIR / f"{part_id}-epo.fif.gz"
+    fname = ica_epoch_path(part_id)
     if fname.exists():
         LineSender().send(part_id + " exists")
         return
@@ -24,8 +23,8 @@ def save_and_notify(part_id, params, eegs, patch_func):
     LineSender().send(part_id)
 
 
-def get_m02_patch():
-    from patch_m04 import main
+def get_nm04_patch():
+    from patch_nm04 import main
 
     return main
 
@@ -49,7 +48,7 @@ def main():
         "nm01": default_params,
         "nm02": default_params,
         "nm03": {"params": params, "eegs": ["1_rem", "2", "3", "4", "5"], "patch_func": None},
-        "nm04": {"params": params, "eegs": eegs, "patch_func": get_m02_patch()},
+        "nm04": {"params": params, "eegs": eegs, "patch_func": get_nm04_patch()},
         "nm06": default_params,
     }
     # fmt： on
