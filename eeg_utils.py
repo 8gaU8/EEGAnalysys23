@@ -7,99 +7,82 @@ from mne.io import RawArray
 from mne.io.brainvision.brainvision import RawBrainVision
 from mne.preprocessing import ICA
 
-event_dict = {
-    # "New Segment/": 99999,
-    "tempo1": 1,
-    "tempo234": 2,
-    "tone": 3,
-    "cross": 4,
-    "start": 5,
-    "stim_start": 6,
-    "answer": 7,
-    "ans_enabled": 9,
-    "stim_end": 10,
-    "probe_tone": 11,
-    "5th_seg": 12,
-    "move_tempo1": 101,
-    "move_tempo234": 102,
-    "move_tone": 103,
-    "move_cross": 104,
-    "move_start": 105,
-    "move_stim_start": 106,
-    "move_answer": 107,
-    "move_ans_enabled": 109,
-    "move_stim_end": 110,
-    "move_probe_tone": 111,
-    "move_5th_seg": 112,
-    "no_move_tempo1": 201,
-    "no_move_tempo234": 202,
-    "no_move_tone": 203,
-    "no_move_cross": 204,
-    "no_move_start": 205,
-    "no_move_stim_start": 206,
-    "no_move_answer": 207,
-    "no_move_ans_enabled": 209,
-    "no_move_stim_end": 210,
-    "no_move_probe_tone": 211,
-    "no_move_5th_seg": 212,
-}
+from config import const, event_dict
 
 
-def parse_events(events: np.ndarray, df: pd.DataFrame):
-    first_event = events[0]
-    events_list = events
+def parse_events(event: np.ndarray, df: pd.DataFrame):
+    MOVE_MSG = const.MOVE_MSG
+    DONT_MOVE_MSG = const.DONT_MOVE_MSG
+    DELAY_BIN_ORDER = const.DELAY_BIN_ORDER
 
-    # ブロックをトライアルに分割
-    segment_list = []
-    segment = []
+    # Delayごとのbin id を
+    delays = df["delay"].to_numpy()
+    delay_bin = pd.cut(delays, const.NB_BIN)
+    df.loc[:, ("delay_bin_id",)] = delay_bin
+    df = df.replace(
+        {"delay_bin_id": {d: i for i, d in enumerate(sorted(set(delay_bin)))}}
+    )
+
+    first_event = event[0]
+    events_list = event
+
+    # セッションをトライアルに分割
+    trial_list = []
+    trial = []
     for start, end, event in events_list:
         if event == 5:
-            segment = []
-        segment.append([start, end, event])
+            trial = []
+        trial.append([start, end, event])
         if event == 7:
-            segment_list.append(segment)
+            trial_list.append(trial)
 
     # 最大30試行に区切る
-    segment_list = segment_list[-30:]
-    # Probe Toneをマーキング
-    for i, segment in enumerate(segment_list):
+    trial_list = trial_list[-30:]
+
+    # 条件毎にトリガーの値を変更
+    for i, trial in enumerate(trial_list):
         msg = 0
         if df.iloc[i]["msg"] == "MOVE":
-            msg = 1
+            msg = MOVE_MSG
         elif df.iloc[i]["msg"] == "DON'T MOVE":
-            msg = 2
-        segment = list(map(lambda s: [s[0], s[1], s[2] + msg * 100], segment))
+            msg = DONT_MOVE_MSG
+        trial = list(map(lambda s: [s[0], s[1], s[2] + msg], trial))
 
-        segment_list[i] = segment
+        trial_list[i] = trial
 
     # 条件ごとにイベントidを書き換え
-    for i, segment in enumerate(segment_list):
+    # Probe Toneと5小節目1拍目にイベント
+    for i, trial in enumerate(trial_list):
         msg = 0
         if df.iloc[i]["msg"] == "MOVE":
-            msg = 1
+            msg = MOVE_MSG
         elif df.iloc[i]["msg"] == "DON'T MOVE":
-            msg = 2
+            msg = DONT_MOVE_MSG
 
         probe_id = 0
         fifth_seg_id = 0
-        for j, event in enumerate(segment):
+        for event_id, event in enumerate(trial):
             if event[2] % 100 == 3:
-                probe_id = j
+                probe_id = event_id
             if event[2] % 100 == 1:
-                fifth_seg_id = j
+                fifth_seg_id = event_id
 
-        segment[probe_id][2] = 11 + msg * 100
-        segment[fifth_seg_id][2] = 12 + msg * 100
-        segment_list[i] = segment
-        for s1, s2, s3 in segment:
-            if s3 > 220:
-                print(s3)
+        trial[probe_id][2] = 11 + msg
+        trial[fifth_seg_id][2] = 12 + msg
+        trial_list[i] = trial
+
+    # delay bin 番号をイベントに割り振る
+    for trial_id, trial in enumerate(trial_list):
+        bin_id = df.iloc[trial_id]["delay_bin_id"]
+        for event_id, event in enumerate(trial):
+            event[2] += bin_id * DELAY_BIN_ORDER
+            trial_list[trial_id][event_id] = event
 
     events_list = [first_event]
-    for segment in segment_list:
-        events_list += segment
-    events_list = np.array(events_list)
-    return events_list
+    for trial in trial_list:
+        events_list += trial
+    events_array = np.array(events_list)
+    return events_array
 
 
 def mk_annotated_events(events: np.ndarray, raw: RawBrainVision) -> Annotations:
@@ -166,7 +149,7 @@ def calc_epochs(part_id, exp_params_ids, eeg_file_ids):
 
         # perse event
         events, event_ids = mne.events_from_annotations(raw, verbose=False)
-        event_df = pd.read_csv(f"./exp_params/{exp_params_id - 1}.csv")
+        event_df = pd.read_csv(f"../exp_params/{exp_params_id - 1}.csv")
         events = parse_events(events, event_df)
         annot_from_events = mk_annotated_events(events, raw)
         # set event
@@ -189,6 +172,7 @@ def calc_epochs(part_id, exp_params_ids, eeg_file_ids):
             tmin=-0.1,
             tmax=0.6,
             verbose=False,
+            on_missing="warn",
         )
         epochs_list.append(epoch)
     return mne.concatenate_epochs(epochs_list)
