@@ -8,7 +8,7 @@ import mne
 import pandas as pd
 from message_senders import LineSender
 
-from config import erp_pkls, ica_epoch
+from config import erp_pkls, ica_epoch_path
 
 
 def get_each_erp(
@@ -38,7 +38,7 @@ def save_each_erp(
     center: float,
     window_width: float = 20 * 1e-3,
 ) -> tuple[pd.DataFrame, Path]:
-    avg_epochs = epochs[f"{condition}_probe_tone"].copy().average()
+    avg_epochs = epochs[f"probe_tone/{condition}"].copy().average()
     df = get_each_erp(avg_epochs, center, window_width)
     path = erp_pkls(part_id, condition, center)
     df.to_pickle(path)
@@ -51,13 +51,13 @@ def main():
     # fmt:on
     LineSender().send("starts")
     for part_id in part_ids:
-        epochs = mne.read_epochs(ica_epoch(part_id))
+        epochs = mne.read_epochs(ica_epoch_path(part_id))
 
         center = 180 * 1e-3
         save_each_erp(epochs, part_id, "move", center)
         save_each_erp(epochs, part_id, "no_move", center)
 
-        center = 300 * 1e-3
+        center = 250 * 1e-3
         save_each_erp(epochs, part_id, "move", center)
         save_each_erp(epochs, part_id, "no_move", center)
 
