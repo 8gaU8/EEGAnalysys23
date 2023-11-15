@@ -179,10 +179,7 @@ def calc_epochs(part_id, exp_params_ids, eeg_file_ids):
     for exp_params_id, eeg_file_id in zip(exp_params_ids, eeg_file_ids):
         path = f"/Volumes/data/haga/data/{part_id}/eeg/session{eeg_file_id}.vhdr"
         print("loading", path)
-        original_raw = mne.io.read_raw_brainvision(
-            path,
-            preload=True,
-        )
+        original_raw = mne.io.read_raw_brainvision(path, preload=True)
         raw = original_raw.copy()
 
         # perse event
@@ -199,9 +196,7 @@ def calc_epochs(part_id, exp_params_ids, eeg_file_ids):
         raw_ica = raw.copy()
         raw_ica.filter(l_freq=1, h_freq=None, n_jobs=10)
         raw_ica.notch_filter(freqs=60, notch_widths=0.5, n_jobs=10)
-        ica.apply(
-            raw_ica,
-        )
+        ica.apply(raw_ica)
         raw_ica.set_annotations(annot_from_events)
         raw_ica_list.append(raw_ica)
 
