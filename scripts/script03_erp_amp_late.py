@@ -1,6 +1,4 @@
 import sys
-
-sys.path.append("..")
 from pathlib import Path
 from typing import Literal
 
@@ -8,27 +6,10 @@ import mne
 import pandas as pd
 from message_senders import LineSender
 
+sys.path.append("..")
+
 from config import erp_pkls, ica_epoch_path
-
-
-def get_each_erp(
-    epochs: mne.EvokedArray, center: float, window_width: float
-) -> pd.DataFrame:
-    tmin = center - window_width
-    tmax = center + window_width
-
-    cropped = epochs.copy().crop(tmin, tmax)
-    index_to_time = cropped.times
-    indeces = cropped.get_data().argmax(axis=1)
-
-    amplitudes = cropped.get_data().max(axis=1)
-    latencies = index_to_time[indeces]
-    ch_names = epochs.ch_names
-    df = pd.DataFrame(
-        zip(ch_names, amplitudes, latencies),
-        columns=["ch_names", "amplitudes", "latencies"],
-    )
-    return df
+from eeg_utils import get_each_erp
 
 
 def save_each_erp(
@@ -46,9 +27,10 @@ def save_each_erp(
 
 
 def main():
-    # fmt:off
-    part_ids = ["m01", "m02", "m03", "m04", "m05", "m06", "nm01", "nm02", "nm03", "nm04" ]
-    # fmt:on
+    part_m_ids = ["m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08"]
+    part_nm_ids = ["nm01", "nm02", "nm03", "nm04"]
+    part_ids = part_m_ids + part_nm_ids
+
     LineSender().send("starts")
     for part_id in part_ids:
         epochs = mne.read_epochs(ica_epoch_path(part_id))

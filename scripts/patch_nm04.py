@@ -101,12 +101,12 @@ def main():
 
     # %%
     path = f"/Volumes/data/haga/data/{part_id}/eeg/session1.vhdr"
-    original_raw_12 = mne.io.read_raw_brainvision(path, preload=True, verbose=False)
+    original_raw_12 = mne.io.read_raw_brainvision(path, preload=True)
 
     # %%
 
     raw_12 = original_raw_12.copy()
-    events, event_ids = mne.events_from_annotations(raw_12, verbose=False)
+    events, event_ids = mne.events_from_annotations(raw_12)
     events = parse_events(events, event_df)
     annot_from_events = eeg_utils.mk_annotated_events(events, raw_12)
 
@@ -145,11 +145,11 @@ def main():
     for exp_params_id, eeg_file_id in zip(exp_params_ids, eeg_file_ids):
         path = f"/Volumes/data/haga/data/{part_id}/eeg/session{eeg_file_id}.vhdr"
         print("loading", path)
-        original_raw_12 = mne.io.read_raw_brainvision(path, preload=True, verbose=False)
+        original_raw_12 = mne.io.read_raw_brainvision(path, preload=True)
         raw_12 = original_raw_12.copy()
 
         # perse event
-        events, event_ids = mne.events_from_annotations(raw_12, verbose=False)
+        events, event_ids = mne.events_from_annotations(raw_12)
         event_df = pd.read_csv(f"../exp_params/{exp_params_id - 1}.csv")
         events = parse_events(events, event_df)
         annot_from_events = eeg_utils.mk_annotated_events(events, raw_12)
@@ -160,9 +160,9 @@ def main():
         # get_ica
         ica = eeg_utils.fit_ica(raw_12)
         raw_ica_12 = raw_12.copy()
-        raw_ica_12.filter(l_freq=1, h_freq=None, verbose=False, n_jobs=10)
-        raw_ica_12.notch_filter(freqs=60, notch_widths=0.5, verbose=False, n_jobs=10)
-        ica.apply(raw_ica_12, verbose=False)
+        raw_ica_12.filter(l_freq=1, h_freq=None, n_jobs=10)
+        raw_ica_12.notch_filter(freqs=60, notch_widths=0.5, n_jobs=10)
+        ica.apply(raw_ica_12)
         raw_ica_12.set_annotations(annot_from_events)
         raw_ica_list.append(raw_ica_12)
 

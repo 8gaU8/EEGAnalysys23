@@ -1,10 +1,10 @@
 import sys
 
-sys.path.append("..")
-
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+
+sys.path.append("..")
 
 from config import erp_pkls
 
@@ -24,7 +24,7 @@ def mean_amps(part_ids, condition, center, picks=None):
 
 
 def plot_vi(picks, center, name):
-    part_m_ids = ["m01", "m02", "m03", "m04", "m05", "m06"]
+    part_m_ids = ["m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08"]
     part_nm_ids = ["nm01", "nm02", "nm03", "nm04"]
 
     amps_m = {

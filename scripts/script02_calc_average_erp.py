@@ -11,7 +11,7 @@ console = Console()
 
 
 def load_and_calc_avg(part_id: str):
-    epochs = mne.read_epochs(ica_epoch_path(part_id), verbose=False)
+    epochs = mne.read_epochs(ica_epoch_path(part_id))
     avg_move = epochs["probe_tone/move"].average()
     avg_no_move = epochs["probe_tone/no_move"].average()
     return avg_move, avg_no_move
@@ -44,7 +44,7 @@ def calc_avg_epochs(part_ids: "list[str]", musicians: bool):
 
 def main():
     LineSender().send("musicians starts")
-    part_ids = ["m01", "m02", "m03", "m04", "m05", "m06"]
+    part_ids = ["m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08"]
     calc_avg_epochs(part_ids=part_ids, musicians=True)
 
     LineSender().send("no musicians starts")

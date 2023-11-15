@@ -45,6 +45,8 @@ def main():
         "m04": default_params,
         "m05": default_params,
         "m06": default_params,
+        "m07": default_params,
+        "m08": default_params,
         "nm01": default_params,
         "nm02": default_params,
         "nm03": {"params": params, "eegs": ["1_rem", "2", "3", "4", "5"], "patch_func": None},
