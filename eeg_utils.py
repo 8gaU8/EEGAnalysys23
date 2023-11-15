@@ -138,7 +138,7 @@ def apply_ref(raw: RawBrainVision) -> RawArray:
     # apply ref
     ref_idx = raw.ch_names.index("X1")
     raw_ary = raw.get_data()
-    raw_ary = raw_ary - raw_ary[ref_idx] // 2
+    raw_ary = raw_ary - raw_ary[ref_idx] / 2
 
     raw_array = RawArray(data=raw_ary, info=raw.info)
     return raw_array
