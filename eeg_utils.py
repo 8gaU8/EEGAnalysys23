@@ -10,6 +10,42 @@ from mne.preprocessing import ICA
 from config import const, event_dict
 
 
+class EpochReader:
+    def __init__(self) -> None:
+        self.loaded = {}
+
+    def read(self, path) -> mne.epochs.EpochsFIF:
+        if path in self.loaded.keys():
+            print("using cached data")
+            return self.loaded[path]
+        epoch = mne.read_epochs(path)
+        self.loaded[path] = epoch
+        return epoch
+
+    def clear(self):
+        self.loaded = {}
+
+
+def get_each_erp(
+    epochs: mne.EvokedArray, center: float, window_width: float
+) -> pd.DataFrame:
+    tmin = center - window_width
+    tmax = center + window_width
+
+    cropped = epochs.copy().crop(tmin, tmax)
+    index_to_time = cropped.times
+    indeces = cropped.get_data().argmax(axis=1)
+
+    amplitudes = cropped.get_data().max(axis=1)
+    latencies = index_to_time[indeces]
+    ch_names = epochs.ch_names
+    df = pd.DataFrame(
+        zip(ch_names, amplitudes, latencies),
+        columns=["ch_names", "amplitudes", "latencies"],
+    )
+    return df
+
+
 def parse_events(event: np.ndarray, df: pd.DataFrame):
     MOVE_MSG = const.MOVE_MSG
     DONT_MOVE_MSG = const.DONT_MOVE_MSG
@@ -94,7 +130,6 @@ def mk_annotated_events(events: np.ndarray, raw: RawBrainVision) -> Annotations:
         event_desc=mapping,
         sfreq=raw.info["sfreq"],
         orig_time=raw.info["meas_date"],
-        verbose=False,
     )
     return annot_from_events
 
@@ -115,7 +150,7 @@ def set_montage(raw: RawArray) -> RawArray:
     raw_copy.set_channel_types({"vEOG": "eog", "hEOG": "eog"})
     raw_copy.drop_channels("X1")
     montage = mne.channels.make_standard_montage("easycap-M1")
-    raw_copy.set_montage(montage, verbose=False)
+    raw_copy.set_montage(montage)
     return raw_copy
 
 
@@ -128,9 +163,9 @@ def fit_ica(raw: RawArray) -> ICA:
         fit_params=dict(extended=True),
     )
     filt_raw = raw.copy()
-    filt_raw.filter(1, 100, verbose=False, n_jobs=10)
-    filt_raw.notch_filter(freqs=60, notch_widths=0.5, verbose=False, n_jobs=10)
-    ica.fit(filt_raw, verbose=False)
+    filt_raw.filter(1, 100, n_jobs=10)
+    filt_raw.notch_filter(freqs=60, notch_widths=0.5, n_jobs=10)
+    ica.fit(filt_raw)
     result = mne_icalabel.label_components(raw, ica, method="iclabel")
     labels = np.array(result["labels"])
     exclude = list(np.argwhere((labels != "other") & (labels != "brain")).flatten())
@@ -144,11 +179,14 @@ def calc_epochs(part_id, exp_params_ids, eeg_file_ids):
     for exp_params_id, eeg_file_id in zip(exp_params_ids, eeg_file_ids):
         path = f"/Volumes/data/haga/data/{part_id}/eeg/session{eeg_file_id}.vhdr"
         print("loading", path)
-        original_raw = mne.io.read_raw_brainvision(path, preload=True, verbose=False)
+        original_raw = mne.io.read_raw_brainvision(
+            path,
+            preload=True,
+        )
         raw = original_raw.copy()
 
         # perse event
-        events, event_ids = mne.events_from_annotations(raw, verbose=False)
+        events, event_ids = mne.events_from_annotations(raw)
         event_df = pd.read_csv(f"../exp_params/{exp_params_id - 1}.csv")
         events = parse_events(events, event_df)
         annot_from_events = mk_annotated_events(events, raw)
@@ -159,9 +197,11 @@ def calc_epochs(part_id, exp_params_ids, eeg_file_ids):
         # get_ica
         ica = fit_ica(raw)
         raw_ica = raw.copy()
-        raw_ica.filter(l_freq=1, h_freq=None, verbose=False, n_jobs=10)
-        raw_ica.notch_filter(freqs=60, notch_widths=0.5, verbose=False, n_jobs=10)
-        ica.apply(raw_ica, verbose=False)
+        raw_ica.filter(l_freq=1, h_freq=None, n_jobs=10)
+        raw_ica.notch_filter(freqs=60, notch_widths=0.5, n_jobs=10)
+        ica.apply(
+            raw_ica,
+        )
         raw_ica.set_annotations(annot_from_events)
         raw_ica_list.append(raw_ica)
 
@@ -171,8 +211,8 @@ def calc_epochs(part_id, exp_params_ids, eeg_file_ids):
             event_id=event_dict,
             tmin=-0.1,
             tmax=0.6,
-            verbose=False,
             on_missing="warn",
+            baseline=None,
         )
         epochs_list.append(epoch)
     return mne.concatenate_epochs(epochs_list)
