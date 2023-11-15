@@ -48,7 +48,6 @@ for k, v in _base_event_dict.items():
 
 #######* path
 
-_INTER_FILES_ROOT = Path("/Volumes/data/haga/data/inter_files_1110")
 _INTER_FILES_ROOT = Path("/Volumes/data/haga/data/inter_files_1114")
 
 
