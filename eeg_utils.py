@@ -225,7 +225,7 @@ def calc_epochs(part_id, exp_params_ids, eeg_file_ids):
         # get_ica
         ica = fit_ica(raw)
         raw_ica = raw.copy()
-        raw_ica.filter(l_freq=1, h_freq=None, n_jobs=10)
+        raw_ica.filter(l_freq=const.L_FREQ, h_freq=const.H_FREQ, n_jobs=10)
         raw_ica.notch_filter(freqs=60, notch_widths=0.5, n_jobs=10)
         ica.apply(raw_ica)
         raw_ica.set_annotations(annot_from_events)
@@ -235,8 +235,8 @@ def calc_epochs(part_id, exp_params_ids, eeg_file_ids):
             raw_ica,
             events,
             event_id=event_dict,
-            tmin=-0.1,
-            tmax=0.6,
+            tmin=const.TMIN,
+            tmax=const.TMAX,
             on_missing="warn",
             baseline=None,
         )
