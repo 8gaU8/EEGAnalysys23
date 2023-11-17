@@ -37,7 +37,7 @@ class EpochReader(Singleton):
         self.loaded = {}
 
 
-def get_each_erp(
+def get_max_erp(
     epochs: mne.EvokedArray, center: float, window_width: float
 ) -> pd.DataFrame:
     tmin = center - window_width
