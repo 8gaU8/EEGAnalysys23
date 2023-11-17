@@ -78,7 +78,7 @@ def main():
         "temporal": picks_r + picks_l,
         "occiput": picks_b,
     }
-    centers = 180 * 1e-3, 300 * 1e-3
+    centers = 180 * 1e-3, 250 * 1e-3, 300 * 1e-3
     for center in centers:
         for key in pick_dict.keys():
             picks = pick_dict[key]

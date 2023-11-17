@@ -130,8 +130,8 @@ def main():
         raw_ica_12,
         events,
         event_id=eeg_utils.event_dict,
-        tmin=-0.1,
-        tmax=0.6,
+        tmin=const.TMIN,
+        tmax=const.TMAX,
         verbose=False,
         on_missing="warn",
     )
@@ -170,8 +170,8 @@ def main():
             raw_ica_12,
             events,
             event_id=eeg_utils.event_dict,
-            tmin=-0.1,
-            tmax=0.6,
+            tmin=const.TMIN,
+            tmax=const.TMAX,
             verbose=False,
             on_missing="warn",
         )

@@ -123,8 +123,8 @@ def load_epoch(part_id, session_id):
         raw,
         events,
         event_id=event_dict,
-        tmin=-0.1,
-        tmax=0.6,
+        tmin=const.TMIN,
+        tmax=const.TMAX,
         on_missing="ignore",
     )
     return epoch, df

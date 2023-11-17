@@ -1,4 +1,5 @@
 import sys
+from tqdm import tqdm
 from pathlib import Path
 from typing import Literal
 
@@ -9,7 +10,7 @@ from message_senders import LineSender
 sys.path.append("..")
 
 from config import erp_pkls, ica_epoch_path
-from eeg_utils import get_each_erp
+from eeg_utils import get_max_erp, get_min_erp
 
 
 def save_each_erp(
@@ -18,9 +19,13 @@ def save_each_erp(
     condition: Literal["move", "no_move"],
     center: float,
     window_width: float = 20 * 1e-3,
+    min=False,
 ) -> tuple[pd.DataFrame, Path]:
     avg_epochs = epochs[f"probe_tone/{condition}"].copy().average()
-    df = get_each_erp(avg_epochs, center, window_width)
+    if not min:
+        df = get_max_erp(avg_epochs, center, window_width)
+    else:
+        df = get_min_erp(avg_epochs, center, window_width)
     path = erp_pkls(part_id, condition, center)
     df.to_pickle(path)
     return df, path
@@ -32,14 +37,18 @@ def main():
     part_ids = part_m_ids + part_nm_ids
 
     LineSender().send("starts")
-    for part_id in part_ids:
+    for part_id in tqdm(part_ids):
         epochs = mne.read_epochs(ica_epoch_path(part_id))
 
         center = 180 * 1e-3
+        save_each_erp(epochs, part_id, "move", center, min=True)
+        save_each_erp(epochs, part_id, "no_move", center, min=True)
+
+        center = 250 * 1e-3
         save_each_erp(epochs, part_id, "move", center)
         save_each_erp(epochs, part_id, "no_move", center)
 
-        center = 250 * 1e-3
+        center = 300 * 1e-3
         save_each_erp(epochs, part_id, "move", center)
         save_each_erp(epochs, part_id, "no_move", center)
 

@@ -7,7 +7,7 @@ from message_senders import LineSender
 
 sys.path.append("..")
 from config import erp_pkls_per_bin, ica_epoch_path
-from eeg_utils import EpochReader, get_each_erp
+from eeg_utils import EpochReader, get_max_erp
 
 
 def save_each_erp(
@@ -19,7 +19,7 @@ def save_each_erp(
     window_width: float = 20 * 1e-3,
 ) -> tuple[pd.DataFrame, Path]:
     avg_epochs = epochs["probe_tone"][condition][bins].copy().average()
-    df = get_each_erp(avg_epochs, center, window_width)
+    df = get_max_erp(avg_epochs, center, window_width)
     path = erp_pkls_per_bin(part_id, condition, bins, center)
     df.to_pickle(path)
     return df, path
