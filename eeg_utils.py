@@ -10,7 +10,18 @@ from mne.preprocessing import ICA
 from config import const, event_dict
 
 
-class EpochReader:
+class Singleton:
+    instance = None
+
+    def __new__(cls):
+        if cls.instance is None:
+            # Singletonクラスはobjectクラスを継承しているため、super()はobjectを指す
+            cls.instance = super().__new__(cls)
+            print("インスタンスを作成")
+        return cls.instance
+
+
+class EpochReader(Singleton):
     def __init__(self) -> None:
         self.loaded = {}
 
