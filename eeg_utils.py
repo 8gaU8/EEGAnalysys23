@@ -57,6 +57,26 @@ def get_each_erp(
     return df
 
 
+def get_min_erp(
+    epochs: mne.EvokedArray, center: float, window_width: float
+) -> pd.DataFrame:
+    tmin = center - window_width
+    tmax = center + window_width
+
+    cropped = epochs.copy().crop(tmin, tmax)
+    index_to_time = cropped.times
+    indeces = cropped.get_data().argmin(axis=1)
+
+    amplitudes = cropped.get_data().max(axis=1)
+    latencies = index_to_time[indeces]
+    ch_names = epochs.ch_names
+    df = pd.DataFrame(
+        zip(ch_names, amplitudes, latencies),
+        columns=["ch_names", "amplitudes", "latencies"],
+    )
+    return df
+
+
 def parse_events(event: np.ndarray, df: pd.DataFrame):
     MOVE_MSG = const.MOVE_MSG
     DONT_MOVE_MSG = const.DONT_MOVE_MSG
