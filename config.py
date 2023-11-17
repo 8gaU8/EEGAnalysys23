@@ -11,6 +11,10 @@ class _consts(NamedTuple):
     MOVE_MSG = 100
     DONT_MOVE_MSG = 200
     DELAY_BIN_ORDER = 1000
+    TMIN = -0.1
+    TMAX = 0.6
+    L_FREQ = 1
+    H_FREQ = 50
 
 
 const = _consts()
@@ -48,7 +52,8 @@ for k, v in _base_event_dict.items():
 
 #######* path
 
-_INTER_FILES_ROOT = Path("/Volumes/data/haga/data/inter_files_1114")
+_INTER_FILES_ROOT = Path("/Volumes/data/haga/data/inter_files_1115_filt")
+# _INTER_FILES_ROOT = Path("/Volumes/data/haga/data/inter_files_1117")
 
 
 ICA_EPOCHS_DIR = _INTER_FILES_ROOT / "ica_epochs"
